@@ -24,6 +24,5 @@ Incoming Email → AI Classification → Priority Assessment → Routing → Dra
 Important Note
 The workflow creates email drafts rather than automatically sending responses, keeping a human in control of outgoing communication.
 
-Project Status
-Completed practice project.
+Project Status Completed
 
