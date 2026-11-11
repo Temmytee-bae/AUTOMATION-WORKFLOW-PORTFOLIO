@@ -1,0 +1,620 @@
+
+{
+  "name": "AI-Powered ATS Resume Screening System",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1asGb44qoSx8Z4sPuXTAKmyUO1dEWnuyGkyHoHIVsVVMK29ImFPi3xqwknrU5ikfQea5ExDgG",
+          "mode": "list",
+          "cachedResultName": "Untitled Question (File responses)",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1asGb44qoSx8Z4sPuXTAKmyUO1dEWnuyGkyHoHIVsVVMK29ImFPi3xqwknrU5ikfQea5ExDgG"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "1a9d36d6-bde0-4d4c-a405-35319528d8e4",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        -64
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YneyM3kTk2ENFeko",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "70b842fc-602c-4a90-9d73-13dac31178c4",
+      "name": "Download file",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1232,
+        -112
+      ],
+      "credentials": {
+        
+        "googleDriveOAuth2Api""id": "",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.6-flash",
+          "mode": "list",
+          "cachedResultName": "Gemini 3.6 Flash"
+        },
+        "text": "Extract the complete content of this CV. Read all pages, including scanned or image-based text.\n\nReturn the information in a clear, structured format:\n\n1. Candidate's full name\n2. Email address\n3. Phone number\n4. Highest academic qualification\n5. Field of study\n6. Educational institutions and graduation years\n7. Total years of relevant work experience\n8. Previous employment and job responsibilities\n9. Technical and laboratory skills\n10. Food microbiology and quality control experience\n11. HACCP, GMP, ISO 22000 or other food safety training\n12. Professional certifications\n13. Relevant research experience and publications\n\nDo not invent missing information. Write \"Not stated\" where information is unavailable. Preserve the candidate's actual qualifications and experience. Return the extracted information in a readable, structured format.",
+        "inputType": "binary",
+        "options": {}
+      },
+      "id": "87bea269-c73b-42fa-b8c7-09356746d7a6",
+      "name": "Analyze document",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -1008,
+        -176
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cb3585eb-64e6-4ccf-9289-91894940a3af",
+              "name": "cv_text",
+              "value": "={{$json.content.parts[0].text}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "01fe7caf-48b1-43f7-a919-8462b5bdded4",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -752,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.6-flash",
+          "mode": "list",
+          "cachedResultName": "Gemini 3.6 Flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=\n{{\n`You are an experienced Human Resources recruitment analyst specialising in food microbiology, food safety and quality assurance recruitment.\n\nYour task is to evaluate a candidate for the position of Quality Control Analyst and Microbiologist at Beneath the Bite Foods Ltd.\n\nJOB REQUIREMENTS\n\nPosition: Quality Control Analyst and Microbiologist\nDepartment: Quality Assurance and Quality Control.\n\nMANDATORY REQUIREMENTS:\n1. A bachelor's degree in Microbiology, Food Science, Biotechnology or a closely related discipline.\n2. At least two years of relevant professional experience in microbiology, quality control, food production, food processing or a related laboratory environment.\n\nDESIRABLE QUALIFICATIONS:\n- MSc or postgraduate qualification in Microbiology, Food Microbiology, Food Science, Biotechnology or Industrial Microbiology.\n- Practical microbiological testing, microbial enumeration, isolation, identification and pathogen detection.\n- Food manufacturing, food processing or quality control laboratory experience.\n- HACCP, GMP and ISO 22000 knowledge or training.\n- Laboratory equipment handling and analytical skills.\n- Environmental monitoring, contamination control and hygiene assessment.\n- Laboratory documentation, SOPs and reporting.\n- Food preservation, fermentation, spoilage or related research experience.\n- Relevant professional certifications and additional training.\n\nKEY RESPONSIBILITIES:\n- Conduct microbiological analysis of raw materials, intermediate products and finished products.\n- Perform microbial enumeration, isolation, identification and pathogen detection.\n- Monitor production hygiene, sanitation and environmental conditions.\n- Maintain laboratory records and prepare technical reports.\n- Identify contamination risks and recommend corrective and preventive actions.\n- Support HACCP implementation and quality control procedures.\n- Monitor critical control points and report deviations.\n- Handle, store and dispose of samples appropriately.\n- Follow laboratory safety requirements and standard operating procedures.\n- Collaborate with production and quality assurance teams.\n\nSCORING FRAMEWORK (100 POINTS):\n1. Relevant academic qualification: 20 points.\n2. Relevant professional experience: 25 points.\n3. Practical microbiology and laboratory skills: 25 points.\n4. Food safety, HACCP, GMP and ISO knowledge: 15 points.\n5. Additional qualifications, certifications and relevant technical skills: 15 points.\n\nASSESSMENT RULES:\n- The relevant bachelor's degree and minimum two years of relevant experience are mandatory.\n- A postgraduate qualification cannot compensate for failure to meet either mandatory requirement.\n- Do not count unrelated employment as relevant professional experience.\n- Do not assume that a candidate possesses a skill or qualification that is not stated in the CV.\n- Distinguish professional experience from internships, academic projects and training.\n- Where information is unclear, state that it requires human verification.\n- Assess candidates fairly and consistently.\n- Do not use age, gender, ethnicity, religion, disability, marital status or other protected personal characteristics in scoring.\n- AI assessment is advisory. Final recruitment decisions must be made by human HR personnel.\n\nRECOMMENDATION RULES:\n- If either mandatory requirement is not met: NOT QUALIFIED.\n- If both mandatory requirements are met and the score is 70 or above: RECOMMEND FOR INTERVIEW.\n- If both mandatory requirements are met and the score is 55–69: HUMAN REVIEW.\n- If both mandatory requirements are met and the score is below 55: NOT RECOMMENDED.\n\nCANDIDATE CV:\n${$json.cv_text}\n\nReturn ONLY valid JSON using this exact structure:\n\n{\n  \"candidate_name\": \"\",\n  \"email\": \"\",\n  \"phone\": \"\",\n  \"highest_qualification\": \"\",\n  \"field_of_study\": \"\",\n  \"bachelors_degree_relevant\": true,\n  \"degree_assessment\": \"\",\n  \"years_of_relevant_experience\": 0,\n  \"experience_requirement_met\": true,\n  \"experience_assessment\": \"\",\n  \"technical_skills\": [],\n  \"relevant_experience\": \"\",\n  \"food_safety_knowledge\": \"\",\n  \"professional_certifications\": [],\n  \"strengths\": [],\n  \"skills_gaps\": [],\n  \"qualification_score\": 0,\n  \"experience_score\": 0,\n  \"technical_skills_score\": 0,\n  \"food_safety_score\": 0,\n  \"additional_qualifications_score\": 0,\n  \"total_match_score\": 0,\n  \"mandatory_requirements_met\": true,\n  \"recommendation\": \"\",\n  \"ai_assessment\": \"\",\n  \"human_review_required\": true\n}\n\nEnsure all scores are numeric, the total is out of 100, and the recommendation follows the mandatory requirements and thresholds. Use null for unknown numeric values rather than inventing figures.`\n}}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "cf520f84-fc08-4254-be0b-9a998ac0467b",
+      "name": "Message a model",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -528,
+        -208
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NsXWhQZru3f2H2o0",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const assessment = JSON.parse($json.content.parts[0].text);\n\n// All AI screening decisions must receive human review\nassessment.human_review_required = true;\n\nreturn {\n  json: assessment\n};"
+      },
+      "id": "c1f78de3-ba13-4b7e-a6ac-e8e8c1785db4",
+      "name": "Code in JavaScript",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1vnGJwhVQ0MntgftRx4NiR5Hp4yNt_iaBiz7U7FKq3qs",
+          "mode": "list",
+          "cachedResultName": "ATS RESUME SCREEENING",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnGJwhVQ0MntgftRx4NiR5Hp4yNt_iaBiz7U7FKq3qs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnGJwhVQ0MntgftRx4NiR5Hp4yNt_iaBiz7U7FKq3qs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "CANDIDATE NAME": "={{ $json.candidate_name }}",
+            "EMAIL": "={{ $json.email }}",
+            "PHONE NUMBER": "={{ $json.phone }}",
+            "HIGHEST QUALIFICATION": "={{ $json.highest_qualification }}",
+            "FIELD OF STUDY": "={{ $json.field_of_study }}",
+            "DEGREE ASSESSMENT": "={{ $json.degree_assessment }}",
+            "YEARS OF EXPERIENCE": "={{ $json.years_of_relevant_experience }}",
+            "EXPERIENCE REQUIRMENTS": "={{ $json.experience_requirement_met }}",
+            "EXPERIENCE ASSESSMENT": "={{ $json.experience_assessment }}",
+            "TECHNICAL SKILLS": "={{ $json.technical_skills }}",
+            "RELEVANT EXPERINCE": "={{ $json.relevant_experience }}",
+            "FOOD SAFETY KNOWLEDGE ": "={{ $json.food_safety_knowledge }}",
+            "PROFESSIONAL CERTIFICATION": "={{ $json.professional_certifications }}",
+            "QUALIFICTION SCORE": "={{ $json.qualification_score }}",
+            "SKILL GAPS": "={{ $json.skills_gaps }}",
+            "EXPERIENCE SCORE": "={{ $json.experience_score }}",
+            "TECHNICAL SKILL SCORE": "={{ $json.technical_skills_score }}",
+            "FOOD SAFETY SCORE": "={{ $json.food_safety_score }}",
+            "ADDITIONAL QUALIFICATION": "={{ $json.additional_qualifications_score }}",
+            "TOTAL MATCH SCORE": "={{ $json.total_match_score }}",
+            "MANDATORY REQUIREMENTS": "={{ $json.mandatory_requirements_met }}",
+            "RECOMMENDATION ": "={{ $json.recommendation }}",
+            "AI ASSESSMENT": "={{ $json.ai_assessment }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "CANDIDATE NAME",
+              "displayName": "CANDIDATE NAME",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "EMAIL",
+              "displayName": "EMAIL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "PHONE NUMBER",
+              "displayName": "PHONE NUMBER",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "HIGHEST QUALIFICATION",
+              "displayName": "HIGHEST QUALIFICATION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FIELD OF STUDY",
+              "displayName": "FIELD OF STUDY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DEGREE ASSESSMENT",
+              "displayName": "DEGREE ASSESSMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "YEARS OF EXPERIENCE",
+              "displayName": "YEARS OF EXPERIENCE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "EXPERIENCE REQUIRMENTS",
+              "displayName": "EXPERIENCE REQUIRMENTS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "EXPERIENCE ASSESSMENT",
+              "displayName": "EXPERIENCE ASSESSMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TECHNICAL SKILLS",
+              "displayName": "TECHNICAL SKILLS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "RELEVANT EXPERINCE",
+              "displayName": "RELEVANT EXPERINCE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FOOD SAFETY KNOWLEDGE ",
+              "displayName": "FOOD SAFETY KNOWLEDGE ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "PROFESSIONAL CERTIFICATION",
+              "displayName": "PROFESSIONAL CERTIFICATION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "SKILL GAPS",
+              "displayName": "SKILL GAPS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "QUALIFICTION SCORE",
+              "displayName": "QUALIFICTION SCORE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "EXPERIENCE SCORE",
+              "displayName": "EXPERIENCE SCORE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TECHNICAL SKILL SCORE",
+              "displayName": "TECHNICAL SKILL SCORE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FOOD SAFETY SCORE",
+              "displayName": "FOOD SAFETY SCORE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ADDITIONAL QUALIFICATION",
+              "displayName": "ADDITIONAL QUALIFICATION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TOTAL MATCH SCORE",
+              "displayName": "TOTAL MATCH SCORE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "MANDATORY REQUIREMENTS",
+              "displayName": "MANDATORY REQUIREMENTS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "RECOMMENDATION ",
+              "displayName": "RECOMMENDATION ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI ASSESSMENT",
+              "displayName": "AI ASSESSMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8cc1c41e-6cf1-49e8-b9ec-f70067cf7b94",
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -48,
+        -256
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9DUncpRZ9kl99Emg",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "caaa9c44-8fdd-496b-9dd9-042a516b4f88",
+              "leftValue": "={{$json.recommendation}}",
+              "rightValue": "RECOMMEND FOR INTERVIEW",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "53e9d82d-7b01-400d-88bc-3c606394522f",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        16,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "francis.taylor@gmail.com",
+        "subject": "={{\"ATS Interview Recommendation: \" + $json.candidate_name}}",
+        "message": "={{  `<div style=\"margin:0;padding:30px 12px;background-color:#EADCCF;font-family:Arial,Helvetica,sans-serif;\">   <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"max-width:620px;margin:0 auto;background-color:#FFFFFF;border-radius:12px;overflow:hidden;\">      <tr>       <td style=\"background-color:#581B3A;padding:30px 28px;text-align:center;\">         <p style=\"margin:0;color:#E7B9D0;font-size:12px;letter-spacing:2px;font-weight:bold;\">BENEATH THE BITE FOODS LTD.</p>         <h1 style=\"margin:12px 0 5px;color:#FFFFFF;font-size:25px;\">Candidate Screening Report</h1>         <p style=\"margin:0;color:#F1DCE6;font-size:13px;\">Quality Assurance &amp; Quality Control Recruitment</p>       </td>     </tr>      <tr>       <td style=\"padding:25px 28px 12px;\">         <span style=\"display:inline-block;background-color:#F5E6EF;color:#A51D68;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:bold;\">INTERVIEW RECOMMENDATION</span>         <h2 style=\"margin:18px 0 8px;color:#30205F;font-size:21px;\">${$json.candidate_name}</h2>         <p style=\"margin:0;color:#666666;font-size:14px;line-height:1.6;\">A candidate has met the ATS screening criteria and has been recommended for further consideration.</p>       </td>     </tr>      <tr>       <td style=\"padding:15px 28px;\">         <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#F8F3EF;border-radius:8px;\">           <tr><td style=\"padding:13px 16px;color:#581B3A;font-size:13px;font-weight:bold;width:40%;\">Email Address</td><td style=\"padding:13px 16px;color:#333333;font-size:13px;\">${$json.email}</td></tr>           <tr><td style=\"padding:13px 16px;color:#581B3A;font-size:13px;font-weight:bold;\">Phone Number</td><td style=\"padding:13px 16px;color:#333333;font-size:13px;\">${$json.phone}</td></tr>           <tr><td style=\"padding:13px 16px;color:#581B3A;font-size:13px;font-weight:bold;\">Qualification</td><td style=\"padding:13px 16px;color:#333333;font-size:13px;\">${$json.highest_qualification}</td></tr>           <tr><td style=\"padding:13px 16px;color:#581B3A;font-size:13px;font-weight:bold;\">Relevant Experience</td><td style=\"padding:13px 16px;color:#333333;font-size:13px;\">${$json.years_of_relevant_experience} years</td></tr>         </table>       </td>     </tr>      <tr>       <td style=\"padding:10px 28px 20px;\">         <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">           <tr>             <td style=\"background-color:#30205F;padding:20px;text-align:center;border-radius:8px;width:50%;\">               <p style=\"margin:0;color:#E5DDF7;font-size:12px;\">ATS MATCH SCORE</p>               <p style=\"margin:8px 0 0;color:#FFFFFF;font-size:30px;font-weight:bold;\">${$json.total_match_score}<span style=\"font-size:15px;\">/100</span></p>             </td>             <td style=\"width:12px;\"></td>             <td style=\"background-color:#F5E6EF;padding:20px;text-align:center;border-radius:8px;width:50%;\">               <p style=\"margin:0;color:#8B245D;font-size:12px;\">SCREENING STATUS</p>               <p style=\"margin:8px 0 0;color:#581B3A;font-size:16px;font-weight:bold;\">${$json.recommendation}</p>             </td>           </tr>         </table>       </td>     </tr>      <tr>       <td style=\"padding:5px 28px 25px;\">         <h3 style=\"margin:0 0 10px;color:#30205F;font-size:16px;\">AI Assessment Summary</h3>         <div style=\"border-left:4px solid #B52D7A;background-color:#FAF5F7;padding:15px;color:#444444;font-size:13px;line-height:1.7;\">           ${$json.ai_assessment}         </div>       </td>     </tr>      <tr>       <td style=\"background-color:#581B3A;padding:22px 28px;text-align:center;\">         <p style=\"margin:0;color:#FFFFFF;font-size:13px;font-weight:bold;\">Recruitment &amp; Human Resources</p>         <p style=\"margin:8px 0 0;color:#EADCCF;font-size:11px;line-height:1.6;\">This report is generated automatically by the ATS screening system. All recommendations require human review before a recruitment decision is made.</p>         <p style=\"margin:15px 0 0;color:#D9B8C9;font-size:10px;\">Beneath the Bite Foods Ltd. | Automated Recruitment Screening</p>       </td>     </tr>    </table> </div>` }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "698f300d-33ee-4c3a-9963-f661570482ae",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        -160
+      ],
+      "webhookId": "212b5859-ce2f-4dae-a00d-f485d370eefb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CXuDpi5tlPH32MwH",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Analyze document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze document": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
