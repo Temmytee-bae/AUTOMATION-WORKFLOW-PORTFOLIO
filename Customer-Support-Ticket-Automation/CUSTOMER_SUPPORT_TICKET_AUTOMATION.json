@@ -1,0 +1,470 @@
+{
+  "name": "CUSTOMER SUPPORT TICKET AUTOMATION",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "=",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "56f7f334-ebc4-47f8-b30f-3367a7152fce",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        0
+      ],
+      "webhookId": "a2605698-a733-434e-8078-0b25aa6a4e31"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1822e68e-5b7b-4b3a-968e-dd409a00082e",
+              "name": "Customer_Name",
+              "value": "={{ $json.body.customer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "ba70dc1d-409b-4575-9353-ac70c75b6370",
+              "name": "Email Addreses",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "1f881659-1724-45af-aa1d-f3df90939f3a",
+              "name": "Category",
+              "value": "={{ $json.body.Category }}",
+              "type": "string"
+            },
+            {
+              "id": "68958937-0b6f-4c05-9bcc-5857247a9c9c",
+              "name": "Message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "4cd07ab8-06b1-4c93-bbc0-e0fa116ff8e5",
+              "name": "Urgency",
+              "value": "={{ $json.body.Urgency }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "20829939-2605-430f-bd0e-699481d8a084",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        80,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Payment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "116a65b4-8499-47ba-9f5c-6c6c3602d5f9"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": "={{ false }}"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "3556ee07-0cdc-4137-bc45-2ed67ed9a5f9",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Delivery",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "78e70c26-679a-4e83-99d1-90961d6d401c",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Damaged_Item",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "31f73b3e-606b-4984-9d12-3f0c429d6a19",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        304,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "28afa942-a2c6-4e07-ae85-f136a931808b",
+              "leftValue": "={{ $json.Urgency }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a6324b24-480c-408f-a958-15f987096fb4",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1056,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['Email Addreses'] }}",
+        "subject": "Your payment complaint has been received",
+        "message": "=Hi {{ $('Edit Fields').item.json.Customer_Name }}, your complaint was duly received. Be rest assured that our representative will reach out to you in less than 24 hours.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "846e00a2-109d-40f1-ab78-e24856a7c0eb",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        -160
+      ],
+      "webhookId": "70cf9644-d25a-46f5-a32a-e2bea684a838",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CXuDpi5tlPH32MwH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Your payment complaint has been received and marked as urgent.\"\n}",
+        "options": {}
+      },
+      "id": "019dfeed-7181-4306-9707-2d6367da996e",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1792,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['Email Addreses'] }}",
+        "subject": "Your payment complaint has been received",
+        "emailType": "text",
+        "message": "=Hi {{ $('Edit Fields').item.json.Customer_Name }}, your payment complaint has been received and will be attended to and resolved within the next 24 hours.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e179dbb4-5b52-4ac0-b4ce-689edf66c8b3",
+      "name": "Send a message1",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        -16
+      ],
+      "webhookId": "49d1910b-e0c6-4ab3-8bc3-30d1e0df2fcc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CXuDpi5tlPH32MwH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"received\",\n  \"message\": \"Your payment complaint has been received and will be reviewed.\"\n}",
+        "options": {}
+      },
+      "id": "89fb8a7e-550f-4313-a2f7-b6e8b03f12ff",
+      "name": "Respond to Webhook3",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1520,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['Email Addreses'] }}",
+        "subject": "Your delivery complaint has been received",
+        "emailType": "text",
+        "message": "=Hi {{ $('Edit Fields').item.json.Customer_Name }}, your delivery complaint will be duly worked on. Thank you.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "52f75e02-b4a8-4cbd-8876-ba5062586d23",
+      "name": "Send a message2",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        -16
+      ],
+      "webhookId": "8bfe4204-385e-42da-8f5a-041e72019f65",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CXuDpi5tlPH32MwH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"received\",\n  \"message\": \"Your delivery complaint has been received.\"\n}",
+        "options": {}
+      },
+      "id": "c8bc825a-aada-45b9-90a5-fe2e9a3b6737",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1200,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['Email Addreses'] }}",
+        "subject": "Your damaged-item complaint has been received",
+        "emailType": "text",
+        "message": "=Hi {{ $('Edit Fields').item.json.Customer_Name }}, your damaged-item complaint has been received. It will be rectified within 48 hours. Thank you.",
+        "options": {}
+      },
+      "id": "24d9a846-58a9-4466-b205-6ab5f77cbee1",
+      "name": "Send a message3",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        144
+      ],
+      "webhookId": "0617e526-adb3-4438-ad62-965cbb354b84",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CXuDpi5tlPH32MwH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"received\",\n  \"message\": \"Your damaged-item complaint has been received.\"\n}",
+        "options": {}
+      },
+      "id": "782615fe-6420-4278-8878-b4a3013c655c",
+      "name": "Respond to Webhook2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        272
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
